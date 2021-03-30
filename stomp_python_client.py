@@ -29,12 +29,13 @@ class StompClient(object):
       server_ip(str): Ip of the server.
       port_number(int): port number through which we want to make the
                         connection.
-      destination(list): List of topics which we want to subscribe to.
+      destinations(list): List of topics which we want to subscribe to.
 
     """
     self.NOTIFICATIONS = queue.Queue()
     self.headers = {"Authorization": "Bearer " + jwt_token}
     self.ws_uri = ws_uri.format(server_ip, port_number)
+    self.destinations = destinations
 
   @staticmethod
   def on_open(ws):
@@ -49,7 +50,7 @@ class StompClient(object):
     ws.send("CONNECT\naccept-version:1.0,1.1,2.0\n\n\x00\n")
     
     # Subscribing to all required desitnations. 
-    for destination in destinations:
+    for destination in self.destinations:
       sub = stomper.subscribe(destination, "clientuniqueId", ack="auto")
       ws.send(sub)
 
